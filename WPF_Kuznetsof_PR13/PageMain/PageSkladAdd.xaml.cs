@@ -23,9 +23,13 @@ namespace WPF_Kuznetsof_PR13.PageMain
     {
         private Sklad _currentSklad = new Sklad();
 
-        public PageSkladAdd()
+        public PageSkladAdd(Sklad selectedSklad)
         {
             InitializeComponent();
+
+            if (selectedSklad != null)
+                _currentSklad = selectedSklad;
+
             DataContext = _currentSklad;
             ComboStrana.ItemsSource = PR13Entities.GetContext().Strana.ToList();
         }
@@ -57,6 +61,7 @@ namespace WPF_Kuznetsof_PR13.PageMain
             {
                 PR13Entities.GetContext().SaveChanges();
                 MessageBox.Show("Информация сохранена");
+                AppFrame.FrameMain.GoBack();
             }
             catch (Exception ex)
             {

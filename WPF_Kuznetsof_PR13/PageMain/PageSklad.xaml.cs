@@ -29,22 +29,41 @@ namespace WPF_Kuznetsof_PR13.PageMain
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
-
+            AppFrame.FrameMain.Navigate(new PageSkladAdd((sender as Button).DataContext as Sklad));
         }
 
         private void btnDel_Click(object sender, RoutedEventArgs e)
         {
+            var tovarForRemoning = DtGridTovar.SelectedItems.Cast<Sklad>().ToList();
+            if (MessageBox.Show($"Вы точно хотите удалить следующее {tovarForRemoning.Count()} элементов?", "Внимание", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    PR13Entities.GetContext().Sklad.RemoveRange(tovarForRemoning);
+                    PR13Entities.GetContext().SaveChanges();
+                    MessageBox.Show("Данные удалены");
 
+                    DtGridTovar.ItemsSource = PR13Entities.GetContext().Sklad.ToList();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString());
+                }
+            }
         }
 
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
-            AppFrame.FrameMain.Navigate(new PageSkladAdd());
+            AppFrame.FrameMain.Navigate(new PageSkladAdd(null));
         }
 
         private void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-
+            if (Visibility == Visibility.Visible)
+            {
+                PR13Entities.GetContext().ChangeTracker.Entries().ToList().ForEach(p => p.Reload());
+                DtGridTovar.ItemsSource = PR13Entities.GetContext().Sklad.ToList();
+            }
         }
     }
 }
